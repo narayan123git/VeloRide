@@ -174,24 +174,6 @@ This endpoint logs out the user by clearing the authentication cookie and blackl
   - `capacity` (number, required, minimum 1)
   - `vehicleType` (string, required, one of: car, bike, truck, van)
 
-### Sample Request
-```json
-{
-  "fullname": {
-    "firstname": "John",
-    "lastname": "Doe"
-  },
-  "email": "john.doe@example.com",
-  "password": "securePassword123",
-  "vehicle": {
-    "color": "Red",
-    "plate": "ABC1234",
-    "capacity": 4,
-    "vehicleType": "car"
-  }
-}
-```
-
 ### Description
 This endpoint registers a new captain. It validates the input data using express-validator.
 Upon successful validation:
@@ -207,17 +189,7 @@ Upon successful validation:
   ```json
   {
     "message": "Captain registered successfully",
-    "captain": {
-      "id": "64f1c2e8a2b3c4d5e6f7a8b9",
-      "fullname": { "firstname": "John", "lastname": "Doe" },
-      "email": "john.doe@example.com",
-      "vehicle": {
-        "color": "Red",
-        "plate": "ABC1234",
-        "capacity": 4,
-        "vehicleType": "car"
-      }
-    },
+    "captain": { "id": "...", "fullname": { "firstname": "...", "lastname": "..." }, "email": "...", "vehicle": { "color": "...", "plate": "...", "capacity": 1, "vehicleType": "car" } },
     "token": "..."
   }
   ```
@@ -227,7 +199,7 @@ Upon successful validation:
 - **Body:**
   ```json
   {
-    "errors": [ { "msg": "First name must be at least 3 characters long", "param": "fullname.firstname", ... } ]
+    "errors": [ { "msg": "...", "param": "...", ... } ]
   }
   ```
 
@@ -249,8 +221,115 @@ Upon successful validation:
   }
   ```
 
-### Validation Notes
-- All fields are required except where noted.
-- `vehicleType` must be one of: car, bike, truck, van.
-- `plate` must be alphanumeric and up to 10 characters.
-- Email must be unique.
+---
+
+## Captain Login Endpoint
+
+### URL
+`/captain/login`
+
+### Method
+`POST`
+
+### Request Data
+- **email**: A valid email address (string, required)
+- **password**: A string with a minimum of 6 characters (required)
+
+### Description
+This endpoint logs in an existing captain by verifying credentials using express-validator. Upon successful verification:
+- A JWT token is generated for the session.
+
+### Responses
+
+#### Success
+- **Status Code:** 200
+- **Body:**
+  ```json
+  {
+    "message": "Captain logged in successfully",
+    "captain": { "id": "...", "fullname": { "firstname": "...", "lastname": "..." }, "email": "...", "vehicle": { "color": "...", "plate": "...", "capacity": 1, "vehicleType": "car" } },
+    "token": "..."
+  }
+  ```
+
+#### Validation Error or Incorrect Credentials
+- **Status Code:** 400 or 401
+- **Body:**
+  ```json
+  {
+    "message": "Invalid email or password"
+  }
+  ```
+
+---
+
+## Captain Profile Endpoint
+
+### URL
+`/captain/profile`
+
+### Method
+`GET`
+
+### Authentication
+Requires a valid JWT token in headers or cookies.
+
+### Description
+Retrieves the profile information of the authenticated captain.
+
+### Responses
+
+#### Success
+- **Status Code:** 200
+- **Body:**
+  ```json
+  {
+    "message": "Captain profile retrieved successfully",
+    "captain": { "id": "...", "fullname": { "firstname": "...", "lastname": "..." }, "email": "...", "vehicle": { "color": "...", "plate": "...", "capacity": 1, "vehicleType": "car" } }
+  }
+  ```
+
+#### Error
+- **Status Code:** 401
+- **Body:**
+  ```json
+  {
+    "message": "Unauthorized or invalid token"
+  }
+  ```
+
+---
+
+## Captain Logout Endpoint
+
+### URL
+`/captain/logout`
+
+### Method
+`GET`
+
+### Authentication
+Requires a valid JWT token in headers or cookies.
+
+### Description
+Logs out the captain by clearing authentication cookies and blacklisting the JWT token.
+
+### Responses
+
+#### Success
+- **Status Code:** 200
+- **Body:**
+  ```json
+  {
+    "message": "Captain logged out successfully"
+  }
+  ```
+
+#### Error
+- **Status Code:** 400
+- **Body:**
+  ```json
+  {
+    "message": "No token provided"
+  }
+  ```
