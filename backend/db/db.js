@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
 function connectToDB() {
-    const dbURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/mydatabase';
+    const dbURI = process.env.DB_CONNECT || 'mongodb://localhost:27017/mydatabase';
     
-mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(dbURI)
     .then(() => {
     console.log('Connected to MongoDB');
     })
