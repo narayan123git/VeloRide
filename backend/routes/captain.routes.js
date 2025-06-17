@@ -15,7 +15,4 @@ router.post('/register', [
     body('vehicle.vehicleType').isIn(['car', 'bike', 'truck', 'van']).withMessage('Vehicle type must be one of: car, bike, truck'),
 ], captainController.registerCaptain);
 
-router.get('/profile', authMiddleware, captainController.getProfile);
-router.put('/profile', authMiddleware, captainController.updateProfile);
-
 module.exports = router;
