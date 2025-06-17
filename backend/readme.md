@@ -151,3 +151,106 @@ This endpoint logs out the user by clearing the authentication cookie and blackl
     "message": "No token provided"
   }
   ```
+
+# Captain Endpoints
+
+## Captain Registration Endpoint
+
+### URL
+`/captain/register`
+
+### Method
+`POST`
+
+### Request Data
+- **fullname**: An object containing:
+  - `firstname` (string, required, minimum 3 characters)
+  - `lastname` (string, required, minimum 3 characters)
+- **email**: A valid email address (string, required)
+- **password**: A string with a minimum of 6 characters (required)
+- **vehicle**: An object containing:
+  - `color` (string, required, minimum 3 characters)
+  - `plate` (string, required, alphanumeric up to 10 characters)
+  - `capacity` (number, required, minimum 1)
+  - `vehicleType` (string, required, one of: car, bike, truck, van)
+
+### Sample Request
+```json
+{
+  "fullname": {
+    "firstname": "John",
+    "lastname": "Doe"
+  },
+  "email": "john.doe@example.com",
+  "password": "securePassword123",
+  "vehicle": {
+    "color": "Red",
+    "plate": "ABC1234",
+    "capacity": 4,
+    "vehicleType": "car"
+  }
+}
+```
+
+### Description
+This endpoint registers a new captain. It validates the input data using express-validator.
+Upon successful validation:
+- The password is hashed.
+- A new captain is created.
+- A JWT token is generated.
+
+### Responses
+
+#### Success
+- **Status Code:** 201
+- **Body:**
+  ```json
+  {
+    "message": "Captain registered successfully",
+    "captain": {
+      "id": "64f1c2e8a2b3c4d5e6f7a8b9",
+      "fullname": { "firstname": "John", "lastname": "Doe" },
+      "email": "john.doe@example.com",
+      "vehicle": {
+        "color": "Red",
+        "plate": "ABC1234",
+        "capacity": 4,
+        "vehicleType": "car"
+      }
+    },
+    "token": "..."
+  }
+  ```
+
+#### Validation Error
+- **Status Code:** 400
+- **Body:**
+  ```json
+  {
+    "errors": [ { "msg": "First name must be at least 3 characters long", "param": "fullname.firstname", ... } ]
+  }
+  ```
+
+#### Duplicate Email Error
+- **Status Code:** 400
+- **Body:**
+  ```json
+  {
+    "message": "Captain with this email already exists"
+  }
+  ```
+
+#### Internal Server Error
+- **Status Code:** 500
+- **Body:**
+  ```json
+  {
+    "message": "Internal server error"
+  }
+  ```
+
+### Validation Notes
+- All fields are required except where noted.
+- `vehicleType` must be one of: car, bike, truck, van.
+- `plate` must be alphanumeric and up to 10 characters.
+- Email must be unique.
