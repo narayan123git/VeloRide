@@ -1,4 +1,4 @@
-# User Registration and Login Endpoints
+# User Registration, Login, Profile & Logout Endpoints
 
 ## User Registration Endpoint
 
@@ -58,8 +58,7 @@ This endpoint registers a new user. It validates the input data using express-va
 - **password**: A string with a minimum of 6 characters (required)
 
 ### Description
-This endpoint logs in an existing user. It validates the input credentials using express-validator. Upon successful validation:
-- The user's credentials are verified.
+This endpoint logs in an existing user by verifying credentials using express-validator. Upon successful verification:
 - A JWT token is generated for the session.
 
 ### Responses
@@ -93,10 +92,10 @@ This endpoint logs in an existing user. It validates the input credentials using
 `GET`
 
 ### Authentication
-Requires a valid JWT token in headers or cookies.
+This endpoint requires authentication through a valid JWT token passed via headers or cookies.
 
 ### Description
-Retrieves the profile information of the authenticated user.
+This endpoint retrieves the profile information of the authenticated user.
 
 ### Responses
 
@@ -128,10 +127,10 @@ Retrieves the profile information of the authenticated user.
 `GET`
 
 ### Authentication
-Requires a valid JWT token in headers or cookies.
+This endpoint requires authentication through a valid JWT token passed via headers or cookies.
 
 ### Description
-Logs out the user by clearing authentication cookies and blacklisting the JWT token.
+This endpoint logs out the user by clearing the authentication cookie and blacklisting the JWT token.
 
 ### Responses
 
