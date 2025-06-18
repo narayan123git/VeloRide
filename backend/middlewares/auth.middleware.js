@@ -43,8 +43,10 @@ module.exports.authUser = async (req, res, next) => {
 };
 
 module.exports.authCaptain = async (req, res, next) => {
-  
+
   const token = req.headers.authorization?.split(' ')[1] || req.cookies?.token;
+
+  // console.log('Captain token:', token);
   if (!token) {
     return res.status(401).json({ message: 'Access denied. No token provided.' });
   }
@@ -56,9 +58,14 @@ module.exports.authCaptain = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // console.log('Decoded captain:', decoded);
+    if (decoded.role !== 'captain') {
+      return res.status(401).json({ message: 'Invalid token role' });
+    }
+
     const captain = await captainModel.findById(decoded._id);
     if (!captain) {
-      return res.status(401).json({ message: 'Invalid token.' });
+      return res.status(401).json({ message: 'Invalid token.2' });
     }
     req.captain = captain;
     next();

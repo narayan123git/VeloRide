@@ -19,7 +19,7 @@ const captainSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-        lowercase: true, 
+        lowercase: true,
         match: [/\S+@\S+\.\S+/, 'Email is not valid'],
         minlength: [5, 'Email must be at least 5 characters long'],
     },
@@ -62,7 +62,7 @@ const captainSchema = new mongoose.Schema({
         },
     },
 
-    location:{
+    location: {
         lat: {
             type: Number,
         },
@@ -75,8 +75,9 @@ const captainSchema = new mongoose.Schema({
 
 captainSchema.methods.generateAuthToken = function () {
     const token = jwt.sign(
-        { _id: this._id },
-        process.env.JWT_SECRET, { expiresIn: '24h' } // Token expires in 1 day
+        { _id: this._id, role: 'captain' },
+        process.env.JWT_SECRET,
+        { expiresIn: '24h' }
     );
     return token;
 }
