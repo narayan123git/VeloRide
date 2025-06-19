@@ -120,7 +120,7 @@ const Home = () => {
 
   return (
     <>
-      {(vehiclePanelOpen || confirmedRidePanel) && (
+      {(vehiclePanelOpen || confirmedRidePanel || Driver) && (
         <div
           className="fixed inset-0 z-30"
             onClick={() => {
