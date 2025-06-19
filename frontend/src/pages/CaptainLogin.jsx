@@ -35,7 +35,7 @@ const CaptainLogin = () => {
     return (
         <div className='p-4 md:p-7 min-h-screen flex flex-col justify-center items-center bg-gradient-to-r from-[#df56b6] to-purple-500 text-white'>
             <div className="w-full max-w-md md:max-w-2xl">
-                <img className='mx-auto w-26 mb-8' src="https://pngimg.com/uploads/uber/uber_PNG24.png" alt="" />
+                <img className='mx-auto w-26 mb-8' src="https://pngimg.com/uploads/uber/uber_PNG24.png" alt="VeloRide Logo" />
 
                 <form onSubmit={(e) =>
                     submitHandler(e)

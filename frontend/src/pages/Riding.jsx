@@ -16,7 +16,7 @@ const Riding = () => {
             </div>
             <div className='h-1/2 p-4'>
                 <div className='flex items-center justify-between'>
-                    <img className='h-12' src="https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_496,w_881/v1688398986/assets/90/34c200-ce29-49f1-bf35-e9d250e8217a/original/UberX.png" alt="" />
+                    <img className='h-12' src="https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_496,w_881/v1688398986/assets/90/34c200-ce29-49f1-bf35-e9d250e8217a/original/UberX.png" alt="VeloRide Vehicle" />
                     <div>
                         <h2 className='text-lg font-medium'>Narayan</h2>
                         <h4 className='text-xl font-semibold -mt-1 -mb-1'>JAJSI 728</h4>

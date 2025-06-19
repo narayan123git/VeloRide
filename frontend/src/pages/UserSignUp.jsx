@@ -43,7 +43,7 @@ const UserSignUp = () => {
   return (
     <div className='p-4 md:p-7 min-h-screen flex flex-col justify-center items-center bg-gradient-to-r from-blue-500 to-purple-500 text-white'>
       <div className="w-full max-w-md md:max-w-2xl">
-        <img className='w-16 mb-8' src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="" />
+        <img className='w-16 mb-8' src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="VeloRide Logo" />
 
         <form onSubmit={
           (e) => {

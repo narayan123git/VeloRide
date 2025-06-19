@@ -14,10 +14,10 @@ const Start = () => {
           md:bg-[position:0px_-180px] md:bg-cover
         '
       >
-        <img className='w-16 ml-8' src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="" />
+        <img className='w-16 ml-8' src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="VeloRide Logo" />
         <div className='bg-white pb-7 px-8 md:mt-32'>
           <h2 className='text-2xl pt-5 md:pt-0 font-bold mb-4 text-center'>
-            Get started with Uber
+            Get started with VeloRide
           </h2>
           <Link to='/login' className='flex items-center justify-center w-full bg-black text-white py-3 rounded-2xl rounded-b-2xl mt-3'>Continue</Link>
         </div>

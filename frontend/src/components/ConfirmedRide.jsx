@@ -7,7 +7,7 @@ const ConfirmedRide = (props) => {
         <div>
             <h3 className='text-2xl font-semibold mb-5'>Confirm your ride</h3>
             <div className='flex gap-2 w-full justify-between items-center flex-col'>
-                <img className='h-30' src="https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_496,w_881/v1688398986/assets/90/34c200-ce29-49f1-bf35-e9d250e8217a/original/UberX.png" alt="" />
+                <img className='h-30' src="https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_496,w_881/v1688398986/assets/90/34c200-ce29-49f1-bf35-e9d250e8217a/original/UberX.png" alt="VeloRide Vehicle" />
 
                 <div className='w-full mt-5'>
                     <div className='flex items-center gap-5 p-3 border-b-2 border-gray-400'>

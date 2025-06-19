@@ -58,7 +58,7 @@ const CaptainSignUp = () => {
   return (
     <div className='p-4 md:p-7 min-h-screen flex flex-col justify-center items-center bg-gradient-to-r from-[#2bda6399] to-[#b368d6] text-white'>
       <div className="w-full max-w-md md:max-w-2xl">
-        <img className='w-16 mb-8' src="https://pngimg.com/uploads/uber/uber_PNG24.png" alt="" />
+        <img className='w-16 mb-8' src="https://pngimg.com/uploads/uber/uber_PNG24.png" alt="VeloRide Logo" />
 
         <form onSubmit={(e) => submitHandler(e)} action="" className="w-full">
           <div className='flex flex-col md:flex-row gap-4 mb-4'>

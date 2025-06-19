@@ -132,7 +132,7 @@ const Home = () => {
         />
       )}
       <div className='h-screen relative overflow-hidden'>
-        <img className='w-16 absolute left-5 top-5' src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="" />
+        <img className='w-16 absolute left-5 top-5' src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="VeloRide Logo" />
         <div className='min-h-screen w-screen flex flex-col justify-center items-center bg-gradient-to-r from-[#2bda6399] to-[#b368d6] text-white'>
           <img
             className='h-screen w-screen object-cover md:object-center'
