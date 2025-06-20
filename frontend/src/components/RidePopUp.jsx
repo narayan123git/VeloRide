@@ -40,13 +40,15 @@ const RidePopUp = ({ setRidePopupPanel, setConRidePopupPanel }) => {
                         </div>
                     </div>
                 </div>
-                <button onClick={() => {
+                <div className='flex items-center justify-between gap-3'>
+                    <button onClick={() => {
                     setConRidePopupPanel(true)
 
-                }} className='bg-green-400 text-white font-semibold mt-5 p-2 rounded-lg w-full'>Accept</button>
+                }} className='bg-green-400 text-white font-semibold mt-5 p-3 px-8 rounded-lg'>Accept</button>
                 <button onClick={() => {
                     setRidePopupPanel(false)
-                }} className='bg-gray-300 text-gray-700 font-semibold mt-1 p-2 rounded-lg w-full'>Ignore</button>
+                }} className='bg-gray-300 text-gray-700 font-semibold mt-5 p-3 px-8 rounded-lg'>Ignore</button>
+                </div>
             </div>
         </div>
     )

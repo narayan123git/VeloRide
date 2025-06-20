@@ -54,7 +54,7 @@ const CaptainHome = () => {
       <div className='h-screen'>
         <div className='fixed p-6 top-0 w-screen flex items-center justify-between'>
           <img className='w-16' src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="VeloRide Logo" />
-          <Link to='/home' className='fixed top-2 right-2 h-10 w-10 bg-white flex items-center justify-center rounded-full'>
+          <Link to='/captain-home' className='fixed top-2 right-2 h-10 w-10 bg-white flex items-center justify-center rounded-full'>
             <i className="text-lg font-medium ri-logout-box-r-line"></i>            </Link>
         </div>
         <div className='h-[70%]'>
@@ -72,7 +72,7 @@ const CaptainHome = () => {
         >
           <RidePopUp setRidePopupPanel={setRidePopupPanel} setConRidePopupPanel={setConRidePopupPanel}/>
         </div>
-        <div ref={conridepopRef}
+        <div  ref ={conridepopRef}
           className='translate-y-full fixed w-full h-screen z-40 bg-white bottom-0 px-3 py-8 pt-12'
         >
           <ConRidePopUp setRidePopupPanel={setRidePopupPanel} setConRidePopupPanel={setConRidePopupPanel}/>
