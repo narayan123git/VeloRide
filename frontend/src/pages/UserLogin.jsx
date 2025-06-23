@@ -9,9 +9,9 @@ const UserLogin = () => {
     const [password, setPassword] = useState('')
     const [captainData, setCaptainData] = useState({})
 
-    const {user,setUser} = useContext(UserDataContext)
+    const { user, setUser } = useContext(UserDataContext)
     const navigate = useNavigate()
-    
+
     const submitHandler = async (e) => {
         e.preventDefault()
         const userData = {
@@ -19,13 +19,15 @@ const UserLogin = () => {
             password: password
         }
 
-    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/login`,userData)
-    if(response.status===200){
-      const data = response.data
-      setUser(data.user)
-      localStorage.setItem('token',data.token)
-      navigate('/home')
-    }
+        const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/login`, userData)
+        if (response.status === 200) {
+            const data = response.data
+            setUser(data.user)
+            localStorage.removeItem('token'); // clear old
+            localStorage.setItem('token', data.token); // set fresh
+            // console.log(data.token)
+            navigate('/home')
+        }
         // Reset the form fields after submission
         setEmail('')
         setPassword('')

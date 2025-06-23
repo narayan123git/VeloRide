@@ -1,15 +1,33 @@
 import React from 'react'
+import axios from 'axios'
 
-const RidePopUp = ({ setRidePopupPanel, setConRidePopupPanel }) => {
+// ...existing code...
+const RidePopUp = ({ setRidePopupPanel, setConRidePopupPanel, ride, captainId }) => {
+
+    const handleAccept = async () => {
+        try {
+            await axios.post(`${import.meta.env.VITE_BASE_URL}/rides/accept`, {
+                rideId: ride._id,
+                captainId
+            });
+            setRidePopupPanel(false);
+            setConRidePopupPanel(true);
+        } catch (err) {
+            alert('Failed to accept ride');
+        }
+    };
+
     return (
         <div>
             <h3 className='text-2xl font-semibold mb-5'>New ride available</h3>
             <div className='flex items-center justify-between bg-yellow-400 rounded-lg p-3'>
                 <div className='flex items-center gap-3'>
                     <img className='h-12 rounded-full object-cover' src="https://i.pinimg.com/736x/8b/16/7a/8b167af653c2399dd93b952a48740620.jpg" alt="" />
-                    <h2 className='text-lg font-medium'>Narayan Paul</h2>
+                    <h2 className='text-lg font-medium'>{ride?.userName || "User"}</h2>
                 </div>
-                <h5 className='text-lg font-semibold'>2.5 KM</h5>
+                <h5 className='text-lg font-semibold'>
+                    {ride?.distance ? `${ride.distance.toFixed(1)} KM` : '2.5 KM'}
+                </h5>
             </div>
             <div className='flex gap-2 w-full justify-between items-center flex-col'>
                 <div className='w-full mt-5'>
@@ -18,8 +36,8 @@ const RidePopUp = ({ setRidePopupPanel, setConRidePopupPanel }) => {
                             <i className="ri-map-pin-fill"></i>
                         </h2>
                         <div>
-                            <h3 className='text-lg font-medium'>562/11/a</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>Rampur, Coochbehar, West bengal</p>
+                            <h3 className='text-lg font-medium'>{ride?.pickup?.address || "Pickup Address"}</h3>
+                            <p className='text-sm -mt-1 text-gray-600'>{ride?.pickup?.details || ""}</p>
                         </div>
                     </div>
                     <div className='flex items-center gap-5 p-3 border-b-2 border-gray-400'>
@@ -27,31 +45,30 @@ const RidePopUp = ({ setRidePopupPanel, setConRidePopupPanel }) => {
                             <i className="ri-map-pin-user-line"></i>
                         </h2>
                         <div>
-                            <h3 className='text-lg font-medium'>562/11/a</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>Rampur, Coochbehar, West bengal</p>
+                            <h3 className='text-lg font-medium'>{ride?.destination?.address || "Destination Address"}</h3>
+                            <p className='text-sm -mt-1 text-gray-600'>{ride?.destination?.details || ""}</p>
                         </div>
                     </div>
                     <div className='flex items-center gap-5 p-3'>
                         <h2 className='bg-[#eee] h-10 w-10 flex items-center justify-center rounded-full'>
-                            <i className="ri-money-rupee-circle-line"></i>                        </h2>
+                            <i className="ri-money-rupee-circle-line"></i>
+                        </h2>
                         <div>
-                            <h3 className='text-lg font-medium'>₹193.20</h3>
+                            <h3 className='text-lg font-medium'>{ride?.price ? `₹${ride.price}` : "₹193.20"}</h3>
                             <p className='text-sm -mt-1 text-gray-600'>Cash Price</p>
                         </div>
                     </div>
                 </div>
                 <div className='flex items-center justify-between gap-3'>
+                    <button onClick={handleAccept} className='bg-green-400 text-white font-semibold mt-5 p-3 px-8 rounded-lg'>Accept</button>
                     <button onClick={() => {
-                    setConRidePopupPanel(true)
-
-                }} className='bg-green-400 text-white font-semibold mt-5 p-3 px-8 rounded-lg'>Accept</button>
-                <button onClick={() => {
-                    setRidePopupPanel(false)
-                }} className='bg-gray-300 text-gray-700 font-semibold mt-5 p-3 px-8 rounded-lg'>Ignore</button>
+                        setRidePopupPanel(false)
+                    }} className='bg-gray-300 text-gray-700 font-semibold mt-5 p-3 px-8 rounded-lg'>Ignore</button>
                 </div>
             </div>
         </div>
     )
 }
+// ...existing code...
 
 export default RidePopUp

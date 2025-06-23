@@ -1,34 +1,78 @@
-import React from 'react'
-import 'remixicon/fonts/remixicon.css'
+import React, { useEffect, useState } from 'react'
+import axios from 'axios'
 
-const LocationSearchPanel = (props) => {
+const LocationSearchPanel = ({ setPanelOpen, setVehiclePanelOpen, pickup, destination, setPickup, setDestination, focusedField }) => {
+  const [suggestions, setSuggestions] = useState([])
+  const [readyToContinue, setReadyToContinue] = useState(false)
 
-  //sample array for location
-  const locations = [
-    "24B, Rampur, Coochbehar",
-    "24B, Rampur, Coochbehar",
-    "24B, Rampur, Coochbehar",
-    "24B, Rampur, Coochbehar",
-    "24B, Rampur, Coochbehar",
-    "24B, Rampur, Coochbehar",
-  ]
+  const searchTerm = focusedField === 'pickup' ? pickup : destination
+
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (!searchTerm || searchTerm.length < 3) return;
+      try {
+        const token = localStorage.getItem('token');
+        const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`, {
+          params: { address: searchTerm },
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        const result = Array.isArray(res.data) ? res.data : [];
+        setSuggestions(result);
+      } catch (err) {
+        console.error('Suggestion fetch failed:', err.message);
+      }
+    };
+    fetchSuggestions();
+  }, [searchTerm]);
+
+  useEffect(() => {
+    // Enable continue if both are selected
+    if (pickup && destination) {
+      setReadyToContinue(true)
+    } else {
+      setReadyToContinue(false)
+    }
+  }, [pickup, destination])
+
+  const handleSelect = (suggestion) => {
+    if (focusedField === 'pickup') {
+      setPickup(suggestion.display_name)
+    } else {
+      setDestination(suggestion.display_name)
+    }
+
+    setSuggestions([]) // Clear after select
+  }
+
   return (
     <div className='flex flex-col gap-4 p-4 bg-[#bb7ecf9b] rounded-lg shadow-lg max-h-[70%] overflow-y-auto'>
+      {suggestions.map((s, idx) => (
+        <div
+          key={idx}
+          onClick={() => handleSelect(s)}
+          className='flex gap-4 items-center cursor-pointer active:border-2 px-3 py-2 rounded-lg active:border-black justify-start'
+        >
+          <h2 className='bg-[#eee] h-10 w-10 flex items-center justify-center rounded-full'>
+            <i className="ri-map-pin-fill"></i>
+          </h2>
+          <h4 className='font-medium'>{s.display_name}</h4>
+        </div>
+      ))}
 
-      {
-        locations.map((ln,key) => {
-          return <div onClick={()=>{
-            props.setVehiclePanelOpen(true)
-            props.setPanelOpen(false)
-          }} key={key}className='flex gap-4 items-center active:border-2 px-3 py-2 rounded-lg active:border-black justify-start'>
-            <h2 className='bg-[#eee] h-10 w-10 flex items-center justify-center rounded-full'>
-              <i className="ri-map-pin-fill"></i>
-            </h2>
-            <h4 className='font-medium'>{ln}</h4>
-          </div>
-        })
-      }
-      
+      {readyToContinue && (
+        <button
+          onClick={() => {
+            setPanelOpen(false)
+            setVehiclePanelOpen(true)
+          }}
+          className='mt-4 bg-[#3f3f3f] text-white px-6 py-3 rounded-lg font-semibold hover:bg-black transition-all'
+        >
+          Continue
+        </button>
+      )}
     </div>
   )
 }

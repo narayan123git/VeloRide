@@ -13,7 +13,7 @@ module.exports.registerUser = async (req, res, next) => {
     const { fullname, email, password } = req.body;
 
     const isUserExists = await userModel.find({ email });
-    
+
     if (isUserExists.length > 0) {
         return res.status(400).json({ message: 'User with this email already exists' });
     }
@@ -52,9 +52,17 @@ module.exports.loginUser = async (req, res, next) => {
         return res.status(401).json({ message: '2Invalid email or password' });
     }
 
-    const token = user.generateAuthToken();
+    res.clearCookie('token', { httpOnly: true, sameSite: 'Lax' });
 
-    res.cookie('token', token);
+    const token = user.generateAuthToken();
+    // console.log('Token :', token);
+    res.cookie('token', token, {
+        httpOnly: true,
+        secure: false,       // true if using HTTPS
+        sameSite: 'Lax',
+        maxAge: 1000 * 60 * 60 * 24 // 1 day
+    });
+
 
     res.status(200).json({
         message: 'User logged in successfully',

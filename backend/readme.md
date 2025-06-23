@@ -1,335 +1,379 @@
-# User Registration, Login, Profile & Logout Endpoints
+# Backend API Documentation
 
-## User Registration Endpoint
+## User Endpoints
 
-### URL
-`/users/register`
+### User Registration
 
-### Method
-`POST`
+**URL:** `/users/register`
 
-### Request Data
-- **fullname**: An object containing:
-  - `firstname` (string, required, minimum 3 characters)
-  - `lastname` (string, optional, minimum 3 characters)
-- **email**: A valid email address (string, required, minimum 5 characters)
-- **password**: A string with a minimum of 6 characters (required)
+**Method:** `POST`
 
-### Description
-This endpoint registers a new user. It validates the input data using express-validator. Upon successful validation:
-- The password is hashed.
-- A new user is created.
-- A JWT token is generated.
+**Request Body:**
 
-### Responses
+```json
+{
+  "fullname": {
+    "firstname": "John",
+    "lastname": "Doe"
+  },
+  "email": "john@example.com",
+  "password": "password123"
+}
+```
 
-#### Success
-- **Status Code:** 201
-- **Body:**
-  ```json
-  {
-    "message": "User registered successfully",
-    "user": { "id": "...", "fullname": { "firstname": "...", "lastname": "..." }, "email": "..." },
-    "token": "..."
-  }
-  ```
+**Description:** Registers a new user. Validates input, hashes password, creates user, returns JWT token.
 
-#### Validation Error
-- **Status Code:** 400
-- **Body:**
-  ```json
-  {
-    "errors": [ { "msg": "...", "param": "...", ... } ]
-  }
-  ```
-  
-> Note: Other errors may return different status codes depending on the failure point.
+**Responses:**
 
-## User Login Endpoint
-
-### URL
-`/users/login`
-
-### Method
-`POST`
-
-### Request Data
-- **email**: A valid email address (string, required)
-- **password**: A string with a minimum of 6 characters (required)
-
-### Description
-This endpoint logs in an existing user by verifying credentials using express-validator. Upon successful verification:
-- A JWT token is generated for the session.
-
-### Responses
-
-#### Success
-- **Status Code:** 200
-- **Body:**
-  ```json
-  {
-    "message": "User login successful",
-    "user": { "id": "...", "fullname": { "firstname": "...", "lastname": "..." }, "email": "..." },
-    "token": "..."
-  }
-  ```
-
-#### Validation Error or Incorrect Credentials
-- **Status Code:** 400 or 401
-- **Body:**
-  ```json
-  {
-    "errors": [ { "msg": "...", "param": "...", ... } ]
-  }
-  ```
-
-## User Profile Endpoint
-
-### URL
-`/users/profile`
-
-### Method
-`GET`
-
-### Authentication
-This endpoint requires authentication through a valid JWT token passed via headers or cookies.
-
-### Description
-This endpoint retrieves the profile information of the authenticated user.
-
-### Responses
-
-#### Success
-- **Status Code:** 200
-- **Body:**
-  ```json
-  {
-    "message": "User profile fetched successfully",
-    "user": { "id": "...", "fullname": { "firstname": "...", "lastname": "..." }, "email": "..." }
-  }
-  ```
-
-#### Error
-- **Status Code:** 401
-- **Body:**
-  ```json
-  {
-    "message": "Unauthorized or invalid token"
-  }
-  ```
-
-## User Logout Endpoint
-
-### URL
-`/users/logout`
-
-### Method
-`GET`
-
-### Authentication
-This endpoint requires authentication through a valid JWT token passed via headers or cookies.
-
-### Description
-This endpoint logs out the user by clearing the authentication cookie and blacklisting the JWT token.
-
-### Responses
-
-#### Success
-- **Status Code:** 200
-- **Body:**
-  ```json
-  {
-    "message": "User logged out successfully"
-  }
-  ```
-
-#### Error
-- **Status Code:** 400
-- **Body:**
-  ```json
-  {
-    "message": "No token provided"
-  }
-  ```
-
-# Captain Endpoints
-
-## Captain Registration Endpoint
-
-### URL
-`/captain/register`
-
-### Method
-`POST`
-
-### Request Data
-- **fullname**: An object containing:
-  - `firstname` (string, required, minimum 3 characters)
-  - `lastname` (string, required, minimum 3 characters)
-- **email**: A valid email address (string, required)
-- **password**: A string with a minimum of 6 characters (required)
-- **vehicle**: An object containing:
-  - `color` (string, required, minimum 3 characters)
-  - `plate` (string, required, alphanumeric up to 10 characters)
-  - `capacity` (number, required, minimum 1)
-  - `vehicleType` (string, required, one of: car, bike, truck, van)
-
-### Description
-This endpoint registers a new captain. It validates the input data using express-validator.
-Upon successful validation:
-- The password is hashed.
-- A new captain is created.
-- A JWT token is generated.
-
-### Responses
-
-#### Success
-- **Status Code:** 201
-- **Body:**
-  ```json
-  {
-    "message": "Captain registered successfully",
-    "captain": { "id": "...", "fullname": { "firstname": "...", "lastname": "..." }, "email": "...", "vehicle": { "color": "...", "plate": "...", "capacity": 1, "vehicleType": "car" } },
-    "token": "..."
-  }
-  ```
-
-#### Validation Error
-- **Status Code:** 400
-- **Body:**
-  ```json
-  {
-    "errors": [ { "msg": "...", "param": "...", ... } ]
-  }
-  ```
-
-#### Duplicate Email Error
-- **Status Code:** 400
-- **Body:**
-  ```json
-  {
-    "message": "Captain with this email already exists"
-  }
-  ```
-
-#### Internal Server Error
-- **Status Code:** 500
-- **Body:**
-  ```json
-  {
-    "message": "Internal server error"
-  }
-  ```
+- `201 Created` on success
+- `400 Bad Request` on validation error
 
 ---
 
-## Captain Login Endpoint
+### User Login
 
-### URL
-`/captain/login`
+**URL:** `/users/login`
 
-### Method
-`POST`
+**Method:** `POST`
 
-### Request Data
-- **email**: A valid email address (string, required)
-- **password**: A string with a minimum of 6 characters (required)
+**Request Body:**
 
-### Description
-This endpoint logs in an existing captain by verifying credentials using express-validator. Upon successful verification:
-- A JWT token is generated for the session.
+```json
+{
+  "email": "john@example.com",
+  "password": "password123"
+}
+```
 
-### Responses
+**Description:** Logs in a user, validates credentials, returns JWT token.
 
-#### Success
-- **Status Code:** 200
-- **Body:**
-  ```json
-  {
-    "message": "Captain logged in successfully",
-    "captain": { "id": "...", "fullname": { "firstname": "...", "lastname": "..." }, "email": "...", "vehicle": { "color": "...", "plate": "...", "capacity": 1, "vehicleType": "car" } },
-    "token": "..."
-  }
-  ```
+**Responses:**
 
-#### Validation Error or Incorrect Credentials
-- **Status Code:** 400 or 401
-- **Body:**
-  ```json
-  {
-    "message": "Invalid email or password"
-  }
-  ```
+- `200 OK` on success
+- `400/401` on validation or login failure
 
 ---
 
-## Captain Profile Endpoint
+### User Profile
 
-### URL
-`/captain/profile`
+**URL:** `/users/profile`
 
-### Method
-`GET`
+**Method:** `GET`
 
-### Authentication
-Requires a valid JWT token in headers or cookies.
+**Auth Required:** ✅ (JWT)
 
-### Description
-Retrieves the profile information of the authenticated captain.
+**Description:** Returns authenticated user's profile.
 
-### Responses
+**Responses:**
 
-#### Success
-- **Status Code:** 200
-- **Body:**
-  ```json
-  {
-    "message": "Captain profile retrieved successfully",
-    "captain": { "id": "...", "fullname": { "firstname": "...", "lastname": "..." }, "email": "...", "vehicle": { "color": "...", "plate": "...", "capacity": 1, "vehicleType": "car" } }
-  }
-  ```
-
-#### Error
-- **Status Code:** 401
-- **Body:**
-  ```json
-  {
-    "message": "Unauthorized or invalid token"
-  }
-  ```
+- `200 OK`
+- `401 Unauthorized` if no valid token
 
 ---
 
-## Captain Logout Endpoint
+### User Logout
 
-### URL
-`/captain/logout`
+**URL:** `/users/logout`
 
-### Method
-`GET`
+**Method:** `GET`
 
-### Authentication
-Requires a valid JWT token in headers or cookies.
+**Auth Required:** ✅ (JWT)
 
-### Description
-Logs out the captain by clearing authentication cookies and blacklisting the JWT token.
+**Description:** Logs out user by clearing cookie and blacklisting token.
 
-### Responses
+**Responses:**
 
-#### Success
-- **Status Code:** 200
-- **Body:**
+- `200 OK` on success
+- `400 Bad Request` on error
+
+---
+
+## Captain Endpoints
+
+### Captain Registration
+
+**URL:** `/captain/register`
+
+**Method:** `POST`
+
+**Request Body:**
+
+```json
+{
+  "fullname": {
+    "firstname": "Jane",
+    "lastname": "Smith"
+  },
+  "email": "jane@example.com",
+  "password": "securepass",
+  "vehicle": {
+    "color": "red",
+    "plate": "WB12A1234",
+    "capacity": 4,
+    "vehicleType": "auto"
+  }
+}
+```
+
+**Description:** Registers a captain. `vehicleType` must be one of: `car`, `bike`, `taxi`, `auto`.
+
+**Responses:**
+
+- `201 Created`
+- `400 Bad Request` on validation/duplicate email
+- `500 Internal Server Error`
+
+---
+
+### Captain Login
+
+**URL:** `/captain/login`
+
+**Method:** `POST`
+
+**Request Body:** Same as user login.
+
+**Description:** Logs in a captain, returns JWT.
+
+**Responses:**
+
+- `200 OK`
+- `400/401` on failure
+
+---
+
+### Captain Profile
+
+**URL:** `/captain/profile`
+
+**Method:** `GET`
+
+**Auth Required:** ✅
+
+**Description:** Retrieves authenticated captain's profile.
+
+**Responses:**
+
+- `200 OK`
+- `401 Unauthorized`
+
+---
+
+### Captain Logout
+
+**URL:** `/captain/logout`
+
+**Method:** `GET`
+
+**Auth Required:** ✅
+
+**Description:** Logs out captain.
+
+**Responses:**
+
+- `200 OK`
+- `400 Bad Request`
+
+---
+
+## Location Endpoints
+
+### Get Coordinates
+
+**URL:** `/api/maps/get-coordinates`
+
+**Method:** `GET`
+
+**Query Params:** `address`
+
+**Auth Required:** ✅
+
+**Description:** Returns `{ lat, lon }` from LocationIQ.
+
+**Responses:**
+
+- `200 OK`
+- `400/404` on error
+
+---
+
+### Get Distance and Time
+
+**URL:** `/api/maps/get-distance-time`
+
+**Method:** `GET`
+
+**Query Params:** `origin`, `destination`
+
+**Auth Required:** ✅
+
+**Description:** Uses OpenRouteService and LocationIQ to return distance and duration.
+
+**Responses:**
+
+- `200 OK`: `{ distance_meters, duration_seconds }`
+- `400/404` on error
+
+---
+
+### Get Suggestions
+
+**URL:** `/api/maps/get-suggestions`
+
+**Method:** `GET`
+
+**Query Params:** `address`
+
+**Auth Required:** ✅
+
+**Description:** Returns address suggestions from LocationIQ.
+
+**Responses:**
+
+- `200 OK`: array of suggestions
+- `400/404` on error
+
+---
+
+## Ride Endpoints
+
+### Create Ride
+
+**URL:** `/api/rides/create`
+
+**Method:** `POST`
+
+**Auth Required:** ✅
+
+**Request Body:**
+
+```json
+{
+  "pickup": "Barobisha, Jalpaiguri",
+  "destination": "Coochbehar Industrial Park",
+  "vehicleType": "auto"
+}
+```
+
+**Description:**
+
+- Creates a new ride
+- Calculates fare based on vehicle type using OpenRouteService & LocationIQ
+- Returns ride object with fare (OTP hidden)
+
+**Responses:**
+
+- `201 Created`
+- `400 Bad Request` on validation error
+- `500 Internal Server Error`
+
+---
+
+## WebSocket (Socket.IO) Events
+
+### captain-online
+
+**Payload:** `{ captainId, lat, lng }`
+
+Registers a captain as online and updates their location.
+
+---
+
+### user-online
+
+**Payload:** `{ userId }`
+
+Registers a user as online.
+
+---
+
+### disconnect
+
+Removes user/captain from online list.
+
+---
+
+## Dependencies
+
+### Newly Added:
+
+- `axios` – for external API requests
+- `socket.io` – for real-time communication
+
+---
+
+## Features Summary
+
+- 🚘 Captain vehicle types updated: `car`, `bike`, `taxi`, `auto`
+- 📦 Real-time socket support (online status, ride notifications)
+- 🧭 Location services: geocoding, routing, suggestions
+- 💰 Ride model with dynamic fare calculation
+- 🔐 JWT auth required for protected routes
+- 🔄 OTP generation for secure ride validation
+
+---
+
+For exact request/response samples and payload schemas, see individual endpoints above.
+
+---
+
+### Get Fare Estimate
+
+**URL:** `/api/rides/get-fare`
+
+**Method:** `GET`
+
+**Auth Required:** ✅
+
+**Query Params:**
+- `pickup` (string): Pickup address
+- `destination` (string): Destination address
+- `vehicleType` (string): One of `car`, `bike`, `taxi`, `auto`
+
+**Description:**
+- Calculates and returns the estimated fare for a ride between the given pickup and destination addresses, based on the selected vehicle type.
+- Uses OpenRouteService and LocationIQ for distance and route calculation.
+
+**Responses:**
+
+- `200 OK`:  
   ```json
   {
-    "message": "Captain logged out successfully"
+    "fare": 120,
+    "distance_meters": 8500,
+    "duration_seconds": 900,
+    "vehicleType": "auto"
   }
   ```
+- `400 Bad Request` on validation error or missing parameters
+- `500 Internal Server Error` on external API failure
 
-#### Error
-- **Status Code:** 400
-- **Body:**
-  ```json
-  {
-    "message": "No token provided"
-  }
-  ```
+---
+
+## Error Handling
+
+- All endpoints return appropriate HTTP status codes.
+- Error responses include a `message` field describing the error.
+- Validation errors return a list of issues.
+
+---
+
+## Security Notes
+
+- All protected endpoints require a valid JWT (sent via httpOnly cookie).
+- On token expiry, users must log in again.
+- Logout endpoints clear the token cookie and blacklist the token.
+
+---
+
+## Changelog
+
+- Added `/api/rides/get-fare` endpoint for fare estimation.
+- Improved JWT handling and cookie-based authentication.
+- Updated CORS and cookie settings for production-readiness.
+- Enhanced error messages and validation.
+
+---
+
+For further details, see the codebase or contact
+

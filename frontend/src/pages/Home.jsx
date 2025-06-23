@@ -25,6 +25,8 @@ const Home = () => {
   const [vehicleFound, setVehicleFound] = useState(false)
   const [Driver, setDriver] = useState(false)
   const driverRef = useRef(null)
+  const [focusedField, setFocusedField] = useState('');
+
 
   const submitHandler = (e) => {
     e.preventdefault()
@@ -72,27 +74,27 @@ const Home = () => {
   }, [vehiclePanelOpen])
 
   useGSAP(() => {
-  if (vehicleFound) {
-    gsap.to(vehicleFoundRef.current, {
-      y: '0%',
-      autoAlpha: 1,
-      display: 'block',
-      duration: 0.4,
-      ease: 'power2.out'
-    })
-  } else {
-    gsap.to(vehicleFoundRef.current, {
-      y: '100%',
-      autoAlpha: 0,
-      display: 'none',
-      duration: 0.4,
-      ease: 'power2.in'
-    })
-  }
-}, [vehicleFound])
+    if (vehicleFound) {
+      gsap.to(vehicleFoundRef.current, {
+        y: '0%',
+        autoAlpha: 1,
+        display: 'block',
+        duration: 0.4,
+        ease: 'power2.out'
+      })
+    } else {
+      gsap.to(vehicleFoundRef.current, {
+        y: '100%',
+        autoAlpha: 0,
+        display: 'none',
+        duration: 0.4,
+        ease: 'power2.in'
+      })
+    }
+  }, [vehicleFound])
 
 
-    useGSAP(() => {
+  useGSAP(() => {
     if (confirmedRidePanel) {
       gsap.to(confirmedVehicle.current, {
         transform: 'translateY(0%)'
@@ -123,11 +125,11 @@ const Home = () => {
       {(vehiclePanelOpen || confirmedRidePanel || Driver) && (
         <div
           className="fixed inset-0 z-30"
-            onClick={() => {
-              setVehiclePanelOpen(false)
-              setConfirmedRidePanel(false)
-              setDriver(false)
-            }
+          onClick={() => {
+            setVehiclePanelOpen(false)
+            setConfirmedRidePanel(false)
+            setDriver(false)
+          }
           }
         />
       )}
@@ -160,24 +162,28 @@ const Home = () => {
               </div>
 
               <input
-                onClick={() => {
+                onFocus={() => {
                   setPanelOpen(true)
+                  setFocusedField('pickup');
                 }}
                 value={pickup}
                 onChange={(e) => {
                   setPickup(e.target.value)
+                  setFocusedField('pickup');
                 }}
                 className='bg-[#eee] mt-3 px-10 py-2 m-2 w-full text-base rounded-lg'
                 type="text"
                 placeholder='Enter your pickup location'
               />
               <input
-                onClick={() => {
+                onFocus={() => {
                   setPanelOpen(true)
+                  setFocusedField('destination');
                 }}
                 value={destination}
                 onChange={(e) => {
                   setDestination(e.target.value)
+                  setFocusedField('destination');
                 }}
                 className='bg-[#eee] px-10 py-2 m-2 w-full text-base rounded-lg'
                 type="text"
@@ -186,13 +192,21 @@ const Home = () => {
             </form>
           </div>
           <div ref={panelRef} className='h-0 bg-white'>
-            <LocationSearchPanel setPanelOpen={setPanelOpen} setVehiclePanelOpen={setVehiclePanelOpen} />
+            <LocationSearchPanel
+              setPanelOpen={setPanelOpen}
+              setVehiclePanelOpen={setVehiclePanelOpen}
+              pickup={pickup}
+              setPickup={setPickup}
+              destination={destination}
+              setDestination={setDestination}
+              focusedField={focusedField}
+            />
           </div>
           <div
             ref={vehiclePanelRef}
             className='fixed w-full z-40 bg-white bottom-0 px-3 py-8 pt-12'
           >
-            <VehiclePanel setVehiclePanelOpen={setVehiclePanelOpen} setConfirmedRidePanel={setConfirmedRidePanel}/>
+            <VehiclePanel setVehiclePanelOpen={setVehiclePanelOpen} setConfirmedRidePanel={setConfirmedRidePanel} />
           </div>
           <div
             ref={confirmedVehicle}
@@ -201,13 +215,13 @@ const Home = () => {
             <ConfirmedRide setVehicleFound={setVehicleFound} setConfirmedRidePanel={setConfirmedRidePanel} />
           </div>
           <div
-           ref={vehicleFoundRef}
+            ref={vehicleFoundRef}
             className='translate-y-full fixed w-full z-40 bg-white bottom-0 px-3 py-6 pt-12'
           >
             <LookingForDrivers setVehicleFound={setVehicleFound} />
           </div>
           <div
-          //  ref={driverRef}
+             ref={driverRef}
             className='fixed w-full z-40 bg-white bottom-0 px-3 py-6 pt-12'
           >
             <WaitingForDrivers setDriver={setDriver} />
