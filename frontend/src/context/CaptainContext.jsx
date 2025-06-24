@@ -1,9 +1,11 @@
 import React, { createContext, useState, useEffect } from 'react'
 import axios from 'axios'
+import { SocketContext } from './SocketContext'
 
 export const CaptainDataContext = createContext()
 
 const CaptainContext = ({ children }) => {
+  const { socket } = React.useContext(SocketContext)
   const [captain, setCaptain] = useState({
     email: '',
     password: '',
@@ -43,7 +45,7 @@ const CaptainContext = ({ children }) => {
     } else {
       setLoading(false)
     }
-  }, [])
+  }, [socket])
 
   // useEffect(() => {
   //   // This will log the updated captain value whenever it changes

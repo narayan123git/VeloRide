@@ -69,3 +69,16 @@ module.exports.createRide = async (user, pickup, destination, vehicleType) => {
 
   return await newRide.save();
 };
+
+module.exports.verifyOtp = async (rideId, otp) => {
+  if (!rideId || !otp) {
+    throw new Error('Invalid ride ID or OTP');
+  }
+
+  const ride = await rideModel.findById(rideId);
+  if (!ride) {
+    throw new Error('Ride not found');
+  }
+
+  return ride.otp === otp;
+};

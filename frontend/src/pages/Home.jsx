@@ -30,14 +30,15 @@ const Home = () => {
   const [fares, setFares] = useState({}); // { car: {fare, distanceKm...}, bike: {...}, ... }
   const fareCache = useRef({});
   const [vehicleType, setVehicleType] = useState(false)
-  const {sendMessage, onMessage} = useContext(SocketContext)
-  const {user} = useContext(UserDataContext)
+  const { sendMessage, onMessage } = useContext(SocketContext)
+  const { user } = useContext(UserDataContext)
+  const [rideData, setRideData] = useState(null)
 
   useEffect(() => {
-    if(!user) return
-    sendMessage('join',{userId:user._id,userType:'user'})
+    if (!user) return
+    sendMessage('join', { userId: user._id, userType: 'user' })
   }, [user])
-  
+
 
 
   const fetchFares = useCallback(async () => {
@@ -95,6 +96,16 @@ const Home = () => {
   const submitHandler = (e) => {
     e.preventdefault()
   }
+
+  useEffect(() => {
+    onMessage('ride-accepted', (data) => {
+      console.log('Ride accepted:', data);
+      setVehicleFound(false);
+      setDriver(true);                // Show WaitingForDrivers panel
+      setRideData(data);             // Populate ride info
+    });
+  }, []);
+
 
   useGSAP(() => {
     if (panelOpen) {
@@ -296,7 +307,7 @@ const Home = () => {
             ref={driverRef}
             className='fixed w-full z-40 bg-white bottom-0 px-3 py-6 pt-12'
           >
-            <WaitingForDrivers setDriver={setDriver} />
+            <WaitingForDrivers ride={rideData} setDriver={setDriver} />
           </div>
         </div>
       </div>

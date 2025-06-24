@@ -12,10 +12,25 @@ router.post('/create',
   rideController.createRide
 );
 
+router.post('/accept',
+  authMiddleware.authCaptain,
+  body('rideId').isString().isLength({ min: 3 }).withMessage('Invalid ride ID'),
+  body('captainId').isString().isLength({ min: 3 }).withMessage('Invalid captain ID'),
+  rideController.acceptRide
+);
+
+router.post('/verify-otp',
+  authMiddleware.authCaptain,
+  body('rideId').isMongoId().withMessage('Invalid ride ID'),
+  body('otp').isLength({ min: 4, max: 6 }).withMessage('Invalid OTP'),
+  rideController.verifyOtp
+);
+
 router.get('/get-fare',
   authMiddleware.authUser,
   query('pickup').isString().isLength({ min: 3 }).withMessage('Invalid pickup address'),
   query('destination').isString().isLength({ min: 3 }).withMessage('Invalid destination address'),
   rideController.getFare
 );
+
 module.exports = router;

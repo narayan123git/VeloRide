@@ -17,8 +17,8 @@ const WaitingForDrivers = ({ setDriver, ride }) => {
                         <i className="ri-map-pin-fill"></i>
                     </h2>
                     <div>
-                        <h3 className='text-lg font-medium'>{ride?.pickup?.address || "Pickup Address"}</h3>
-                        <p className='text-sm -mt-1 text-gray-600'>{ride?.pickup?.details || ""}</p>
+                        <h3 className='text-lg font-medium'>Pickup Address</h3>
+                        <p className='text-sm -mt-1 text-gray-600'>{ride?.pickup || ""}</p>
                     </div>
                 </div>
                 <div className='flex items-center gap-5 p-3 border-b-2 border-gray-400'>
@@ -26,8 +26,8 @@ const WaitingForDrivers = ({ setDriver, ride }) => {
                         <i className="ri-map-pin-user-line"></i>
                     </h2>
                     <div>
-                        <h3 className='text-lg font-medium'>{ride?.destination?.address || "Destination Address"}</h3>
-                        <p className='text-sm -mt-1 text-gray-600'>{ride?.destination?.details || ""}</p>
+                        <h3 className='text-lg font-medium'>Destination Address</h3>
+                        <p className='text-sm -mt-1 text-gray-600'>{ride?.destination || ""}</p>
                     </div>
                 </div>
                 <div className='flex items-center gap-5 p-3'>
@@ -37,6 +37,14 @@ const WaitingForDrivers = ({ setDriver, ride }) => {
                     <div>
                         <h3 className='text-lg font-medium'>{ride?.price ? `₹${ride.price}` : "₹193.20"}</h3>
                         <p className='text-sm -mt-1 text-gray-600'>Cash Price</p>
+                    </div>
+                </div>
+                <div className='flex items-center gap-5 p-3 border-b-2 border-gray-400'>
+                    <h2 className='bg-[#eee] h-10 w-10 flex items-center justify-center rounded-full'>
+                        <i class="ri-verified-badge-line"></i>                    </h2>
+                    <div>
+                        <h3 className='text-lg font-medium'>OTP</h3>
+                        <p className='text-sm -mt-1 text-gray-600'>{ride?.otp || ""}</p>
                     </div>
                 </div>
             </div>

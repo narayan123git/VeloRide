@@ -15,30 +15,33 @@ function SocketInitialization(server) {
   io.on('connection', (socket) => {
     console.log('✅ New socket connected:', socket.id);
 
-    socket.on('join',async (data)=>{
-        const {userId,userType} = data
+    socket.on('join', async (data) => {
+      const { userId, userType } = data
 
-        console.log('joined',data)
-        if(userType === 'user'){
-            await userModel.findByIdAndUpdate(userId,{socketId:socket.id})
-        }else if(userType === 'captain'){
-            await captainModel.findByIdAndUpdate(userId,{socketId:socket.id})
-        }
+      console.log('joined', data)
+
+      if (!userId) {
+        console.warn('⚠️ Missing userId in join payload');
+        return;
+      }
+      if (userType === 'user') {
+        await userModel.findByIdAndUpdate(userId, { socketId: socket.id })
+      } else if (userType === 'captain') {
+        await captainModel.findByIdAndUpdate(userId, { socketId: socket.id })
+      }
     })
 
-    socket.on('update-captain-location',async (data)=>{  
-        const {userId,location} = data
-        //perform validation here for location
-        // if(!location || !location.ltd || !location.lng){
-        //   return socket.emit('error','invalid location')
-        // }
-        if(!location.ltd || !location.lng){
-            return socket.emit('error','invalid location')
+    socket.on('update-captain-location', async (data) => {
+      const { userId, location } = data
+      if (!location.ltd || !location.lng) {
+        return socket.emit('error', 'invalid location')
+      }
+      await captainModel.findByIdAndUpdate(userId, {
+        location: {
+          type: 'Point',
+          coordinates: [location.lng, location.ltd] // [lng, lat]
         }
-        await captainModel.findByIdAndUpdate(userId,{location:{
-            ltd:location.ltd,
-            lng:location.lng
-        }})
+      });
     })
     // Handle disconnection
     socket.on('disconnect', () => {
@@ -48,17 +51,23 @@ function SocketInitialization(server) {
   });
 }
 
+function getIO() {
+  if (!io) throw new Error("Socket.IO not initialized!");
+  return io;
+}
+
 // Send message to a specific socketId
 function SocketSendMessageToSocketId(socketId, event, payload) {
   if (socketId && io) {
     io.to(socketId).emit(event, payload);
-    console.log(`📤 Sent ${event} to ${id} via ${socketId}`);
+    console.log(`📤 Sent ${event} via ${socketId}`);
   } else {
-    console.warn(`⚠️ Socket ID for ${id} not found`);
+    console.warn(`⚠️ Socket ID not found`);
   }
 }
 
 module.exports = {
   SocketInitialization,
   SocketSendMessageToSocketId,
+  getIO
 };
