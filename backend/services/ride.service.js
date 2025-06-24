@@ -1,22 +1,23 @@
 const rideModel = require('../models/ride.model');
 const locationService = require('./location.service');
+const NodeCache = require('node-cache');
 const crypto = require('crypto');
 
+const fareCache = new NodeCache({ stdTTL: 60 * 60 * 12 }); // cache lasts 12 hour
+
 module.exports.getFare = async (pickup, destination) => {
-  if (!pickup || !destination) {
-    throw new Error('Invalid pickup or destination');
-  }
+  if (!pickup || !destination) throw new Error('Invalid pickup or destination');
+
+  const cacheKey = `${pickup}_${destination}`;
+  const cached = fareCache.get(cacheKey);
+  if (cached) return cached;
 
   const distanceTime = await locationService.getDistanceTime(pickup, destination);
-
-  if (!distanceTime) {
-    throw new Error('Could not calculate distance or time');
-  }
+  if (!distanceTime) throw new Error('Could not calculate distance or time');
 
   const distanceKm = distanceTime.distance_meters / 1000;
   const durationMin = distanceTime.duration_seconds / 60;
 
-  // Define fare rules per vehicle
   const fareRates = {
     bike: { base: 10, perKm: 2, perMin: 1 },
     auto: { base: 20, perKm: 3, perMin: 1 },
@@ -25,21 +26,20 @@ module.exports.getFare = async (pickup, destination) => {
   };
 
   const fareBreakdown = {};
-
-  for (const [vehicleType, rates] of Object.entries(fareRates)) {
-    const fare = Math.round(
-      rates.base + (distanceKm * rates.perKm) + (durationMin * rates.perMin)
-    );
-
-    fareBreakdown[vehicleType] = {
+  for (const [type, rate] of Object.entries(fareRates)) {
+    const fare = Math.round(rate.base + distanceKm * rate.perKm + durationMin * rate.perMin);
+    fareBreakdown[type] = {
       distanceKm: distanceKm.toFixed(2),
       durationMin: durationMin.toFixed(1),
-      fare
+      fare,
     };
   }
 
+  // console.log(fareBreakdown);
+  fareCache.set(cacheKey, fareBreakdown); // store result in cache
   return fareBreakdown;
 };
+
 
 function getOtp(num) {
   if (!Number.isInteger(num) || num < 1) {

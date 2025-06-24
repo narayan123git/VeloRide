@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import io from 'socket.io-client'
 import CaptainDetails from '../components/CaptainDetails'
 import RidePopUp from '../components/RidePopUp'
@@ -7,6 +7,7 @@ import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import ConRidePopUp from '../components/ConRidePopUp'
 import { CaptainDataContext } from '../context/CaptainContext'
+import { SocketContext } from '../context/SocketContext'
 
 const CaptainHome = () => {
   const { captain, loading } = useContext(CaptainDataContext);
@@ -15,89 +16,48 @@ const CaptainHome = () => {
   const conridepopRef = useRef(null)
   const ridepopRef = useRef(null)
   const [pendingRide, setPendingRide] = useState(null)
-  const [currentLocation, setCurrentLocation] = useState({ lat: null, lng: null });
-  // Replace with actual values from auth/user context
-  const captainId = "your_captain_id" // get from auth/user context
-  const captainLocation = { lat: 22.5726, lng: 88.3639 } // get from context or state (example: Kolkata)
+  const { socket, sendMessage, onMessage } = useContext(SocketContext)
+
+  // console.log(captain)
+  useEffect(() => {
+    // console.log(captain)
+    if (!captain) return
+    sendMessage('join', { userId: captain._id, userType: 'captain' });
+  }, [captain])
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setCurrentLocation({
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude
-          });
-        },
-        (err) => {
-          // fallback to captain.location from context if denied
-          if (captain.location && captain.location.lat && captain.location.lng) {
-            setCurrentLocation({
-              lat: captain.location.lat,
-              lng: captain.location.lng
+    if (!socket || !captain?._id) return;
+
+    const sendLocation = () => {
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+
+            socket.emit('update-captain-location', {
+              userId: captain._id,
+              location: {
+                ltd: latitude,
+                lng: longitude,
+              },
             });
+
+            console.log('📡 Sent location:', latitude, longitude);
+          },
+          (err) => {
+            console.warn('❌ Failed to get location:', err.message);
           }
-        }
-      );
-    } else if (captain.location && captain.location.lat && captain.location.lng) {
-      setCurrentLocation({
-        lat: captain.location.lat,
-        lng: captain.location.lng
-      });
-    }
-  }, [captain.location]);
-
-  function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Radius of the earth in km
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c; // Distance in km
-  }
-
-  useEffect(() => {
-    if (loading) return; // Wait until captain profile is loaded
-    console.log('captain._id:', captain._id);
-    console.log('currentLocation.lat:', currentLocation.lat);
-    console.log('currentLocation.lng:', currentLocation.lng);
-    if (
-      !captain._id ||
-      !currentLocation.lat ||
-      !currentLocation.lng
-    ) {
-      console.log('Captain or location not available');
-      return
+        );
+      } else {
+        console.warn('❌ Geolocation is not supported');
+      }
     };
 
-    console.log('Emitting captain-online', captain._id, currentLocation); // <-- Add this
-    const socket = io(import.meta.env.VITE_BASE_URL.replace('/api', ''));
-    socket.emit('captain-online', {
-      captainId: captain._id,
-      lat: currentLocation.lat,
-      lng: currentLocation.lng
-    });
-    socket.on('ride-request', (ride) => {
-      console.log('Received ride-request event:', ride); // <-- Add this
-      if (ride.pickup && ride.pickup.lat && ride.pickup.lng) {
-        const dist = getDistanceFromLatLonInKm(
-          ride.pickup.lat,
-          ride.pickup.lng,
-          currentLocation.lat,
-          currentLocation.lng
-        );
-        console.log('Distance to pickup:', dist); // <-- Add this
-        if (dist <= 250) {
-          setPendingRide(ride);
-          setRidePopupPanel(true);
-        }
-      }
-    });
-    return () => socket.disconnect();
-  }, [captain._id, currentLocation.lat, currentLocation.lng]);
+    const intervalId = setInterval(sendLocation, 10000); // every 10s
+
+    return () => clearInterval(intervalId);
+  }, [socket, captain]);
+
 
   useGSAP(() => {
     if (RidePopupPanel) {
@@ -153,7 +113,7 @@ const CaptainHome = () => {
           />
         </div>
         <div className='h-[30%] p-6'>
-          <CaptainDetails />
+          <CaptainDetails captain={captain} />
         </div>
         <div ref={ridepopRef}
           className='translate-y-full fixed w-full z-40 bg-white bottom-0 px-3 py-8 pt-12'

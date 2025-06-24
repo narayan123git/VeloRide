@@ -1,6 +1,13 @@
 const axios = require('axios');
+const NodeCache = require('node-cache');
+const captainModel = require('../models/captain.model');
+const cache = new NodeCache({ stdTTL: 86400 }); // cache TTL 1 day (in seconds)
 
 module.exports.getAddressCoordinates = async (address) => {
+  const cacheKey = `geocode_${address}`;
+  const cached = cache.get(cacheKey);
+  if (cached) return cached;
+
   try {
     const response = await axios.get('https://us1.locationiq.com/v1/search.php', {
       params: {
@@ -14,7 +21,9 @@ module.exports.getAddressCoordinates = async (address) => {
       throw new Error('No geocode results found');
     }
 
-    return response.data[0];
+    const coordinates = response.data[0];
+    cache.set(cacheKey, coordinates);
+    return coordinates;
   } catch (error) {
     console.error('Geocoding error:', error.message);
     return null;
@@ -22,6 +31,10 @@ module.exports.getAddressCoordinates = async (address) => {
 };
 
 module.exports.getDistanceTime = async (originAddress, destinationAddress) => {
+  const cacheKey = `distance_${originAddress}_${destinationAddress}`;
+  const cached = cache.get(cacheKey);
+  if (cached) return cached;
+
   try {
     const originCoords = await module.exports.getAddressCoordinates(originAddress);
     const destinationCoords = await module.exports.getAddressCoordinates(destinationAddress);
@@ -52,11 +65,13 @@ module.exports.getDistanceTime = async (originAddress, destinationAddress) => {
     const route = response.data.routes?.[0];
     if (!route) throw new Error('No route found');
 
-    return {
+    const result = {
       distance_meters: route.summary.distance,
-      duration_seconds: route.summary.duration,
-      // route_geometry: route.geometry
+      duration_seconds: route.summary.duration
     };
+
+    cache.set(cacheKey, result);
+    return result;
   } catch (error) {
     if (error.response?.data) {
       console.error('ORS API error:', error.response.data);
@@ -67,19 +82,34 @@ module.exports.getDistanceTime = async (originAddress, destinationAddress) => {
   }
 };
 
+
 module.exports.getSuggestions = async (query) => {
-    try {
-        const response = await axios.get('https://us1.locationiq.com/v1/search.php', {
-            params: {
-                key: process.env.LOCATIONIQ_KEY,
-                q: query,
-                format: 'json'
-            }
-        });
-        return response.data;
-    } catch (error) {
-        console.error('LocationIQ API error:', error.message);
-        return null;
+  try {
+    const response = await axios.get('https://us1.locationiq.com/v1/search.php', {
+      params: {
+        key: process.env.LOCATIONIQ_KEY,
+        q: query,
+        format: 'json'
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('LocationIQ API error:', error.message);
+    return null;
+  }
+};
+
+module.exports.getCaptainInRadius = async (latitude, longitude, radius) => {
+  const captains = await captainModel.find({
+    location: {
+      $near: {
+        $geometry: {
+          type: 'Point',
+          coordinates: [longitude, latitude]
+        },
+        $maxDistance: radius
+      }
     }
+  });
 };
 

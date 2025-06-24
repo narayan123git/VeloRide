@@ -1,22 +1,26 @@
-import React, { useEffect, useState } from 'react'
-import axios from 'axios'
+import { useEffect, useState, useRef } from 'react';
+import axios from 'axios';
 
-const LocationSearchPanel = ({ setPanelOpen, setVehiclePanelOpen, pickup, destination, setPickup, setDestination, focusedField }) => {
-  const [suggestions, setSuggestions] = useState([])
-  const [readyToContinue, setReadyToContinue] = useState(false)
+const LocationSearchPanel = ({ setPanelOpen, setVehiclePanelOpen, pickup, destination, setPickup, setDestination, focusedField, fetchFares }) => {
+  const [suggestions, setSuggestions] = useState([]);
+  const [readyToContinue, setReadyToContinue] = useState(false);
+  const debounceRef = useRef(null);
 
-  const searchTerm = focusedField === 'pickup' ? pickup : destination
+  const searchTerm = focusedField === 'pickup' ? pickup : destination;
 
   useEffect(() => {
-    const fetchSuggestions = async () => {
-      if (!searchTerm || searchTerm.length < 3) return;
+    if (!searchTerm || searchTerm.length < 3) return;
+
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    debounceRef.current = setTimeout(async () => {
       try {
         const token = localStorage.getItem('token');
         const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`, {
           params: { address: searchTerm },
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          headers: { Authorization: `Bearer ${token}` }
         });
 
         const result = Array.isArray(res.data) ? res.data : [];
@@ -24,12 +28,11 @@ const LocationSearchPanel = ({ setPanelOpen, setVehiclePanelOpen, pickup, destin
       } catch (err) {
         console.error('Suggestion fetch failed:', err.message);
       }
-    };
-    fetchSuggestions();
+    }, 1000); // debounce delay
   }, [searchTerm]);
 
+
   useEffect(() => {
-    // Enable continue if both are selected
     if (pickup && destination) {
       setReadyToContinue(true)
     } else {
@@ -43,9 +46,15 @@ const LocationSearchPanel = ({ setPanelOpen, setVehiclePanelOpen, pickup, destin
     } else {
       setDestination(suggestion.display_name)
     }
-
-    setSuggestions([]) // Clear after select
+    setSuggestions([]);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+
+  const handleContinue = async () => {
+    await fetchFares();
+    setPanelOpen(false);
+    setVehiclePanelOpen(true);
+  };
 
   return (
     <div className='flex flex-col gap-4 p-4 bg-[#bb7ecf9b] rounded-lg shadow-lg max-h-[70%] overflow-y-auto'>
@@ -64,11 +73,8 @@ const LocationSearchPanel = ({ setPanelOpen, setVehiclePanelOpen, pickup, destin
 
       {readyToContinue && (
         <button
-          onClick={() => {
-            setPanelOpen(false)
-            setVehiclePanelOpen(true)
-          }}
-          className='mt-4 bg-[#3f3f3f] text-white px-6 py-3 rounded-lg font-semibold hover:bg-black transition-all'
+          onClick={handleContinue}
+          className="mt-4 bg-[#3f3f3f] text-white px-6 py-3 rounded-lg font-semibold hover:bg-black transition-all"
         >
           Continue
         </button>

@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { UserDataContext } from '../context/UserContext'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
@@ -8,7 +8,8 @@ import VehiclePanel from '../components/VehiclePanel'
 import ConfirmedRide from '../components/ConfirmedRide'
 import LookingForDrivers from '../components/LookingForDrivers'
 import WaitingForDrivers from '../components/WaitingForDrivers'
-
+import axios from 'axios'
+import { SocketContext } from '../context/SocketContext'
 const Home = () => {
 
   const [pickup, setPickup] = useState('')
@@ -26,11 +27,73 @@ const Home = () => {
   const [Driver, setDriver] = useState(false)
   const driverRef = useRef(null)
   const [focusedField, setFocusedField] = useState('');
+  const [fares, setFares] = useState({}); // { car: {fare, distanceKm...}, bike: {...}, ... }
+  const fareCache = useRef({});
+  const [vehicleType, setVehicleType] = useState(false)
+  const {sendMessage, onMessage} = useContext(SocketContext)
+  const {user} = useContext(UserDataContext)
 
+  useEffect(() => {
+    if(!user) return
+    sendMessage('join',{userId:user._id,userType:'user'})
+  }, [user])
+  
+
+
+  const fetchFares = useCallback(async () => {
+    const key = `${pickup}--${destination}`;
+    if (fareCache.current[key]) {
+      setFares(fareCache.current[key]);
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/rides/get-fare`, {
+        params: { pickup, destination },
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.data && response.data.fare) {
+        setFares(response.data.fare);
+      }
+      // console.log('Fetched fares 1:', response.data);
+      console.log('Fetched fares:', fares);
+      fareCache.current[key] = response.data;
+    } catch (err) {
+      console.error('Error fetching fares:', err);
+    }
+  }, [pickup, destination]);
+
+  useEffect(() => {
+    console.log("Updated fares:", fares);
+  }, [fares]);
+
+
+
+  const createRide = async (vehicleType) => {
+    try {
+      const token = localStorage.getItem('token'); // Assuming the latest token is here
+      const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/rides/create`, {
+        pickup,
+        destination,
+        vehicleType
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      console.log("Ride created successfully:", res.data.ride);
+      // return res.data.ride;
+    } catch (error) {
+      console.error("Error creating ride:", error?.response?.data || error.message);
+      return null;
+    }
+  };
 
   const submitHandler = (e) => {
     e.preventdefault()
-
   }
 
   useGSAP(() => {
@@ -193,6 +256,7 @@ const Home = () => {
           </div>
           <div ref={panelRef} className='h-0 bg-white'>
             <LocationSearchPanel
+              fetchFares={fetchFares}
               setPanelOpen={setPanelOpen}
               setVehiclePanelOpen={setVehiclePanelOpen}
               pickup={pickup}
@@ -206,13 +270,21 @@ const Home = () => {
             ref={vehiclePanelRef}
             className='fixed w-full z-40 bg-white bottom-0 px-3 py-8 pt-12'
           >
-            <VehiclePanel setVehiclePanelOpen={setVehiclePanelOpen} setConfirmedRidePanel={setConfirmedRidePanel} />
+            <VehiclePanel fares={fares} selectVehicle={setVehicleType} setVehiclePanelOpen={setVehiclePanelOpen} setConfirmedRidePanel={setConfirmedRidePanel} />
           </div>
           <div
             ref={confirmedVehicle}
             className='translate-y-full fixed w-full z-40 bg-white bottom-0 px-3 py-6 pt-12'
           >
-            <ConfirmedRide setVehicleFound={setVehicleFound} setConfirmedRidePanel={setConfirmedRidePanel} />
+            <ConfirmedRide
+              pickup={pickup}
+              destination={destination}
+              createRide={createRide}
+              fare={fares[vehicleType]?.fare}
+              vehicleType={vehicleType}
+              setVehicleFound={setVehicleFound}
+              setConfirmedRidePanel={setConfirmedRidePanel}
+            />
           </div>
           <div
             ref={vehicleFoundRef}
@@ -221,7 +293,7 @@ const Home = () => {
             <LookingForDrivers setVehicleFound={setVehicleFound} />
           </div>
           <div
-             ref={driverRef}
+            ref={driverRef}
             className='fixed w-full z-40 bg-white bottom-0 px-3 py-6 pt-12'
           >
             <WaitingForDrivers setDriver={setDriver} />

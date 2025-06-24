@@ -1,12 +1,12 @@
 import React from 'react'
 
-const CaptainDetails = () => {
+const CaptainDetails = ({captain}) => {
   return (
     <div>
         <div className='flex items-center justify-between'>
           <div className='flex items-center justify-start gap-3'>
             <img className='h-10 w-10 rounded-full object-cover' src="https://i.pinimg.com/736x/8b/16/7a/8b167af653c2399dd93b952a48740620.jpg" alt="" />
-            <h4 className='text-lg font-medium'>Narayan Paul</h4>
+            <h4 className='text-lg font-medium'>{captain?.fullname.firstname} { captain?.fullname.lastname}</h4>
           </div>
           <div>
             <h4 className='text-xl font-semibold'>₹296</h4>

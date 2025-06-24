@@ -45,10 +45,10 @@ const CaptainContext = ({ children }) => {
     }
   }, [])
 
-  useEffect(() => {
-    // This will log the updated captain value whenever it changes
-    console.log('Captain updated:', captain)
-  }, [captain])
+  // useEffect(() => {
+  //   // This will log the updated captain value whenever it changes
+  //   console.log('Captain updated:', captain)
+  // }, [captain])
 
   return (
     <CaptainDataContext.Provider value={{ captain, setCaptain, loading }}>

@@ -25,6 +25,7 @@ const CaptainLogin = () => {
         if (response.status === 200) {
             const data = response.data
             setUser(data.user)
+            localStorage.removeItem('captain_token');
             localStorage.setItem('captain_token', data.token)
             navigate('/captain-home')
         }
