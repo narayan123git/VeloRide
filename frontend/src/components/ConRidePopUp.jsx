@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 
-const ConRidePopUp = ({ setRidePopupPanel, setConRidePopupPanel, ride, captainId }) => {
+const ConRidePopUp = ({ setRidePopupPanel, setConRidePopupPanel, ride }) => {
   const [otp, setOtp] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -14,7 +14,7 @@ const ConRidePopUp = ({ setRidePopupPanel, setConRidePopupPanel, ride, captainId
 
     setLoading(true)
     try {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('captain_token')
       const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/rides/verify-otp`, {
         rideId: ride._id,
         otp
@@ -25,10 +25,12 @@ const ConRidePopUp = ({ setRidePopupPanel, setConRidePopupPanel, ride, captainId
       })
 
       setLoading(false)
-      if(res.status === 200) alert('✅ OTP Verified. Ride started!')
-      setRidePopupPanel(false)
-      setConRidePopupPanel(false)
-      navigate('/captain-riding')
+      if (res.status === 200) {
+        alert('✅ OTP Verified. Ride started!')
+        setRidePopupPanel(false)
+        setConRidePopupPanel(false)
+        navigate('/captain-riding', { state: { ride } })
+      }
     } catch (err) {
       setLoading(false)
       setError(err?.response?.data?.message || '❌ OTP verification failed')

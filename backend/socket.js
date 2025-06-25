@@ -1,4 +1,3 @@
-// Socket.js
 const socketIo = require('socket.io');
 const userModel = require('./models/user.model');
 const captainModel = require('./models/captain.model');
@@ -7,46 +6,57 @@ let io;
 function SocketInitialization(server) {
   io = socketIo(server, {
     cors: {
-      origin: '*', // Allow all origins (you can restrict this later)
+      origin: '*', // Restrict in production!
       methods: ['GET', 'POST']
     }
   });
 
-  io.on('connection', (socket) => {
-    console.log('✅ New socket connected:', socket.id);
+  // USER NAMESPACE
+  const userNamespace = io.of('/user');
+  userNamespace.on('connection', (socket) => {
+    console.log('✅ [USER] New socket:', socket.id);
 
     socket.on('join', async (data) => {
-      const { userId, userType } = data
+      const { userId } = data;
+      if (!userId) return;
+      await userModel.findByIdAndUpdate(userId, { socketId: socket.id });
+      console.log(`[USER] ${userId} joined with socket ${socket.id}`);
+    });
 
-      console.log('joined', data)
+    socket.on('disconnect', async () => {
+      console.log(`❌ [USER] Socket disconnected: ${socket.id}`);
+      // Optionally remove socketId from user in DB
+    });
+  });
 
-      if (!userId) {
-        console.warn('⚠️ Missing userId in join payload');
-        return;
-      }
-      if (userType === 'user') {
-        await userModel.findByIdAndUpdate(userId, { socketId: socket.id })
-      } else if (userType === 'captain') {
-        await captainModel.findByIdAndUpdate(userId, { socketId: socket.id })
-      }
-    })
+  // CAPTAIN NAMESPACE
+  const captainNamespace = io.of('/captain');
+  captainNamespace.on('connection', (socket) => {
+    console.log('✅ [CAPTAIN] New socket:', socket.id);
+
+    socket.on('join', async (data) => {
+      const { userId } = data;
+      if (!userId) return;
+      await captainModel.findByIdAndUpdate(userId, { socketId: socket.id });
+      console.log(`[CAPTAIN] ${userId} joined with socket ${socket.id}`);
+    });
 
     socket.on('update-captain-location', async (data) => {
-      const { userId, location } = data
+      const { userId, location } = data;
       if (!location.ltd || !location.lng) {
-        return socket.emit('error', 'invalid location')
+        return socket.emit('error', 'invalid location');
       }
       await captainModel.findByIdAndUpdate(userId, {
         location: {
           type: 'Point',
-          coordinates: [location.lng, location.ltd] // [lng, lat]
+          coordinates: [location.lng, location.ltd]
         }
       });
-    })
-    // Handle disconnection
-    socket.on('disconnect', () => {
-      console.log(`❌ Socket disconnected: ${socket.id}`);
-      // Remove from onlineUsers map
+    });
+
+    socket.on('disconnect', async () => {
+      console.log(`❌ [CAPTAIN] Socket disconnected: ${socket.id}`);
+      // Optionally remove socketId from captain in DB
     });
   });
 }
@@ -56,11 +66,11 @@ function getIO() {
   return io;
 }
 
-// Send message to a specific socketId
-function SocketSendMessageToSocketId(socketId, event, payload) {
-  if (socketId && io) {
-    io.to(socketId).emit(event, payload);
-    console.log(`📤 Sent ${event} via ${socketId}`);
+// Send message to a specific socketId (namespace-aware)
+function SocketSendMessageToSocketId(namespace,socketId, event, payload) {
+  if (io && io.of(namespace) && socketId) {
+    io.of(namespace).to(socketId).emit(event, payload);
+    console.log(`📤 Sent ${event} via ${namespace} :${socketId}`);
   } else {
     console.warn(`⚠️ Socket ID not found`);
   }

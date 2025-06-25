@@ -8,7 +8,6 @@ import SocketProvider from './context/SocketContext' // 👈
 
 
 createRoot(document.getElementById('root')).render(
-  <SocketProvider>
     <CaptainContext>
       <UserContext>
         <BrowserRouter>
@@ -16,5 +15,4 @@ createRoot(document.getElementById('root')).render(
         </BrowserRouter>
       </UserContext>
     </CaptainContext>
-  </SocketProvider>
 )

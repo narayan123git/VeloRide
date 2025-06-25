@@ -7,28 +7,21 @@ import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import ConRidePopUp from '../components/ConRidePopUp'
 import { CaptainDataContext } from '../context/CaptainContext'
-import { SocketContext } from '../context/SocketContext'
 import RideCard from '../components/RichCard'; // Create a new component for each ride card
 import axios from 'axios'
+import captainSocket from '../socket/captainSocket'
 
 const CaptainHome = () => {
+  const socket = captainSocket
   const { captain, loading } = useContext(CaptainDataContext);
   const [RidePopupPanel, setRidePopupPanel] = useState(false)
   const [ConRidePopupPanel, setConRidePopupPanel] = useState(false)
   const conridepopRef = useRef(null)
   const ridepopRef = useRef(null)
   const [pendingRide, setPendingRide] = useState(null)
-  const { socket, sendMessage, onMessage } = useContext(SocketContext)
   const [rideQueue, setRideQueue] = useState([]);
   const [activeRide, setActiveRide] = useState(null);
 
-
-  // console.log(captain)
-  useEffect(() => {
-    // console.log(captain)
-    if (!captain) return
-    sendMessage('join', { userId: captain._id, userType: 'captain' });
-  }, [socket, sendMessage, captain])
 
   useEffect(() => {
     if (!socket || !captain?._id) return;
@@ -64,6 +57,7 @@ const CaptainHome = () => {
   }, [socket, captain]);
 
 
+
   useEffect(() => {
     if (!socket || !captain?._id) return;
 
@@ -74,7 +68,7 @@ const CaptainHome = () => {
     };
 
     socket.on('ride-request', handleNewRide);
-
+    console.log('📦 Listening for new ride requests');
     return () => {
       socket.off('ride-request', handleNewRide); // Clean up
     };
@@ -85,7 +79,7 @@ const CaptainHome = () => {
   // }, [rideQueue]);
 
   useEffect(() => {
-    onMessage('remove-ride-from-queue', ({ rideId }) => {
+    socket.on('remove-ride-from-queue', ({ rideId }) => {
       setRideQueue((prev) => prev.filter((ride) => ride._id !== rideId));
     });
   }, []);
@@ -162,14 +156,16 @@ const CaptainHome = () => {
                     const token = localStorage.getItem('captain_token')
                     const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/rides/accept`, {
                       rideId: ride._id,
-                      captainId:captain._id
-                    },{
+                      captainId: captain._id
+                    }, {
                       headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                       }
                     });
-                    if(response.status === 200){
+                    if (response.status === 200) {
+                      // console.log("ride...", response)
+                      const ride = response.data.data
                       setActiveRide(ride)
                       console.log('ride accepted')
                     }

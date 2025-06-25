@@ -58,15 +58,14 @@ module.exports.createRide = async (user, pickup, destination, vehicleType) => {
   }
 
   const fareBreakdown = await module.exports.getFare(pickup, destination);
-
+  const otp1=getOtp(6);
   const newRide = new rideModel({
     user: user,
     pickup,
     destination,
-    otp: getOtp(6),
+    otp: otp1,
     fare: fareBreakdown[vehicleType].fare,
   });
-
   return await newRide.save();
 };
 
@@ -75,10 +74,12 @@ module.exports.verifyOtp = async (rideId, otp) => {
     throw new Error('Invalid ride ID or OTP');
   }
 
-  const ride = await rideModel.findById(rideId);
+  const ride = await rideModel.findById(rideId).select('+otp');
   if (!ride) {
     throw new Error('Ride not found');
   }
 
-  return ride.otp === otp;
+  console.log('Comparing OTPs:', ride.otp, otp);
+  return String(ride.otp) === String(otp);
 };
+

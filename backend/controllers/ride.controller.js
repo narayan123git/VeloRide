@@ -2,7 +2,7 @@ const rideService = require('../services/ride.service');
 const { validationResult } = require('express-validator');
 const locationService = require('../services/location.service');
 const { SocketSendMessageToSocketId } = require('../socket.js')
-const {getIO} = require('../socket.js');
+const { getIO } = require('../socket.js');
 const rideModel = require('../models/ride.model.js');
 const captainModel = require('../models/captain.model.js');
 
@@ -23,7 +23,8 @@ module.exports.createRide = async (req, res, next) => {
         const captainsInRadius = await locationService.getCaptainInRadius(pickupCoordinates.lat, pickupCoordinates.lon, 200);
         // console.log('Captains in radius:', captainsInRadius);
         captainsInRadius.map(async captain => {
-            SocketSendMessageToSocketId(captain.socketId, 'ride-request', ride)
+            SocketSendMessageToSocketId('/captain', captain.socketId, 'ride-request', ride)
+            console.log(`📤 Sent 'ride-request' `)
         })
     } catch (error) {
         next(error);
@@ -47,7 +48,7 @@ module.exports.getFare = async (req, res, next) => {
 module.exports.acceptRide = async (req, res) => {
     const { rideId, captainId } = req.body;
 
-    const ride = await rideModel.findById(rideId).populate('user');
+    const ride = await rideModel.findById(rideId).populate('user').select('+otp');
 
     // 1. Update ride status
     ride.status = 'accepted';
@@ -57,9 +58,15 @@ module.exports.acceptRide = async (req, res) => {
     // 2. Send socket message to the ride's user
     const userSocketId = ride.user.socketId;
     const captain = await captainModel.findById(captainId);
+    captain.status = 'active'
 
-    SocketSendMessageToSocketId(userSocketId, 'ride-accepted', {
+    // console.log("✅ Ride after accept:", ride);
+    console.log('✅ Ride accepted, sending OTP:', ride.otp);
+
+
+    SocketSendMessageToSocketId('/user', userSocketId, 'ride-accepted', {
         rideId: ride._id,
+        otp: ride.otp,
         captainName: `${captain.fullname.firstname} ${captain.fullname.lastname}`,
         vehicleNumber: captain.vehicle.plate,
         vehicleModel: `${captain.vehicle.color} ${captain.vehicle.vehicleType}`,
@@ -68,19 +75,25 @@ module.exports.acceptRide = async (req, res) => {
         price: ride.fare,
     });
 
-    io=getIO()
+    io = getIO()
     // 3. Notify all other captains to remove this ride
     io.emit('remove-ride-from-queue', { rideId: ride._id });
 
-    res.status(200).json({ message: 'Ride accepted successfully' });
+    res.status(200).json({ message: 'Ride accepted successfully' ,data:ride});
 };
 
 module.exports.verifyOtp = async (req, res) => {
     const { rideId, otp } = req.body;
     const isVerified = await rideService.verifyOtp(rideId, otp);
     if (isVerified) {
+        // Notify user to start riding
+        const ride = await rideModel.findById(rideId).populate({ path: 'user', select: 'socketId' }); // <-- explicitly select socketId;
+        const userSocketId = ride.user.socketId;
+        io = getIO()
+        io.of('/user').to(userSocketId).emit('ride-started', { rideId  });
+        console.log(`📤 Sent 'ride-started' to ${userSocketId}`);
         res.status(200).json({ message: 'OTP verified successfully' });
     } else {
-        res.status(400).json({ message: 'Invalid OTP' });
+        res.status(400).json({ message: 'Invalid OTP.' });
     }
 };

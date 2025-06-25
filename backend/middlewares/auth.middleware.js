@@ -60,7 +60,7 @@ module.exports.authCaptain = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     // console.log('Decoded captain:', decoded);
     if (decoded.role !== 'captain') {
-      return res.status(401).json({ message: 'Invalid token role' });
+      return res.status(401).json({ message: 'Invalid token role...' });
     }
 
     const captain = await captainModel.findById(decoded._id);

@@ -9,9 +9,14 @@ import ConfirmedRide from '../components/ConfirmedRide'
 import LookingForDrivers from '../components/LookingForDrivers'
 import WaitingForDrivers from '../components/WaitingForDrivers'
 import axios from 'axios'
-import { SocketContext } from '../context/SocketContext'
+import userSocket from '../socket/userSocket'
+import { useNavigate } from 'react-router-dom';
+
 const Home = () => {
 
+
+  const navigate = useNavigate();
+  const socket = userSocket
   const [pickup, setPickup] = useState('')
   const [destination, setDestination] = useState('')
   const [panelOpen, setPanelOpen] = useState(false)
@@ -30,14 +35,8 @@ const Home = () => {
   const [fares, setFares] = useState({}); // { car: {fare, distanceKm...}, bike: {...}, ... }
   const fareCache = useRef({});
   const [vehicleType, setVehicleType] = useState(false)
-  const { sendMessage, onMessage } = useContext(SocketContext)
   const { user } = useContext(UserDataContext)
   const [rideData, setRideData] = useState(null)
-
-  useEffect(() => {
-    if (!user) return
-    sendMessage('join', { userId: user._id, userType: 'user' })
-  }, [user])
 
 
 
@@ -98,12 +97,27 @@ const Home = () => {
   }
 
   useEffect(() => {
-    onMessage('ride-accepted', (data) => {
-      console.log('Ride accepted:', data);
+    if (!socket) {
+      console.warn('Socket not connected');
+      return;
+    }
+
+    console.log('🛠 Listening for ride-accepted');
+
+    socket.on('ride-accepted', (data) => {
+      console.log('🎯 Ride accepted:', data);
       setVehicleFound(false);
-      setDriver(true);                // Show WaitingForDrivers panel
-      setRideData(data);             // Populate ride info
+      setDriver(true);
+      setRideData(data);
     });
+  }, [socket]);
+
+  useEffect(() => {
+    socket.on('ride-started', (data) => {
+      // console.log('Ride started (ride id):', data);
+      navigate(`/riding/${data.rideId}`); // or `/riding/${data.rideId}` if you want to pass rideId
+    });
+    return () => userSocket.off('ride-started');
   }, []);
 
 

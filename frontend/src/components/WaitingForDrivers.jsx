@@ -41,7 +41,7 @@ const WaitingForDrivers = ({ setDriver, ride }) => {
                 </div>
                 <div className='flex items-center gap-5 p-3 border-b-2 border-gray-400'>
                     <h2 className='bg-[#eee] h-10 w-10 flex items-center justify-center rounded-full'>
-                        <i class="ri-verified-badge-line"></i>                    </h2>
+                        <i className="ri-verified-badge-line"></i>                    </h2>
                     <div>
                         <h3 className='text-lg font-medium'>OTP</h3>
                         <p className='text-sm -mt-1 text-gray-600'>{ride?.otp || ""}</p>
