@@ -5,7 +5,7 @@ import { BrowserRouter } from 'react-router-dom'
 import UserContext from './context/UserContext.jsx'
 import CaptainContext from './context/CaptainContext.jsx'
 import SocketProvider from './context/SocketContext' // 👈
-
+import { Analytics } from "@vercel/analytics/next"
 
 createRoot(document.getElementById('root')).render(
     <CaptainContext>

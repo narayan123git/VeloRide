@@ -13,6 +13,7 @@ import CaptainLogout from './pages/CaptainLogout'
 import CaptainProtectedWrapper from './pages/CaptainProtectedWrapper'
 import Riding from './pages/Riding'
 import CaptainRide from './pages/CaptainRide'
+import { Analytics } from "@vercel/analytics/next"
 
 const App = () => {
   return (
