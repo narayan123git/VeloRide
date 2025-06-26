@@ -1,10 +1,10 @@
-import React from 'react'
+ import React from 'react'
 
 const VehiclePanel = ({ fares, ...props }) => {
   const vehicleList = [
     {
       type: 'car',
-      label: 'UberGo',
+      label: 'VeloGo',
       image: 'https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_496,w_881/v1688398986/assets/90/34c200-ce29-49f1-bf35-e9d250e8217a/original/UberX.png',
       capacity: 4,
       time: '2 mins away'

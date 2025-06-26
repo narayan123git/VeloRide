@@ -1,9 +1,22 @@
-import React, { useContext } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useContext, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { UserDataContext } from '../context/UserContext'
+import { CaptainDataContext } from '../context/CaptainContext'
 
 const Start = () => {
-  const user=useContext(UserDataContext)
+  const { user } = useContext(UserDataContext)
+  const { captain } = useContext(CaptainDataContext)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    console.log('user:', user, 'captain:', captain);
+    if (user && user._id) {
+      navigate('/home');
+    } else if (captain && captain._id) {
+      navigate('/captain-home');
+    }
+  }, [user, captain, navigate]);
+
   return (
     <div className="relative overflow-hidden w-full h-screen">
       <div
