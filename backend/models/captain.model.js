@@ -50,6 +50,24 @@ const captainSchema = new mongoose.Schema({
             unique: true,
             match: [/^[A-Z0-9]{1,10}$/, 'Vehicle plate must be alphanumeric and up to 10 characters long'],
         },
+        earnings: {
+            type: Number,
+            default: 0,
+        },
+        lastOnlineAt: { type: Date },
+        lastOfflineAt: { type: Date },
+        hoursOnline: {
+            type: Number,
+            default: 0,
+        },
+        distance: {
+            type: Number,
+            default: 0,
+        },
+        totalRides: {
+            type: Number,
+            default: 0,
+        },
         capacity: {
             type: Number,
             required: true,

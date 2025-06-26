@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import axios from 'axios'
 
 const FinishRide = ({ ride }) => {
 
@@ -23,6 +24,25 @@ const FinishRide = ({ ride }) => {
     const pickup = ride?.pickup || 'Pickup Address';
     const destination = ride?.destination || 'Destination Address';
     const fare = ride?.fare ? `₹${ride.fare}` : 'N/A';
+
+    const handleFinishRide = async () => {
+        try {
+            const token = localStorage.getItem('captain_token');
+            await axios.post(`${import.meta.env.VITE_BASE_URL}/rides/complete`, {
+                rideId: ride._id
+            },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+            // Optionally show a success message or handle UI updates here
+        } catch (err) {
+            // Optionally handle error
+            alert('Failed to complete ride');
+        }
+    };
 
     useEffect(() => {
         async function geocode(address) {
@@ -103,7 +123,7 @@ const FinishRide = ({ ride }) => {
                         </div>
                     </div>
                 </div>
-                <Link to='/captain-home' className='bg-green-400 text-white font-semibold mt-5 p-3 rounded-lg w-auto'>Finish ride</Link>
+                <Link onClick ={handleFinishRide} to='/captain-home' className='bg-green-400 text-white font-semibold mt-5 p-3 rounded-lg w-auto'>Finish ride</Link>
                 <p className='text-red-500 text-xm mt-10'>Click on "Finish ride", if you have got the payment</p>
             </div>
         </div>

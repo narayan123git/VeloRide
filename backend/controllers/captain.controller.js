@@ -67,6 +67,9 @@ module.exports.loginCaptain = async (req, res, next) => {
         return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    captain.lastOnlineAt = new Date();
+    await captain.save();
+
     res.clearCookie('token', { httpOnly: true, sameSite: 'Lax' });
 
     const token = captain.generateAuthToken();
@@ -93,16 +96,27 @@ module.exports.getCaptainProfile = async (req, res, next) => {
 };
 
 module.exports.logoutCaptain = async (req, res, next) => {
+    const captain = await captainModel.findById(req.captain._id);
+    if (!captain) return res.status(404).json({ message: 'Captain not found' });
+
+    const now = new Date();
+    captain.lastOfflineAt = now;
+
+    if (captain.lastOnlineAt) {
+        const sessionDuration = (now - captain.lastOnlineAt) / (1000 * 60 * 60); // hours
+        captain.vehicle.hoursOnline += sessionDuration;
+    }
+    await captain.save();
 
     const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
-    
-    if(!token) {
+
+    if (!token) {
         return res.status(400).json({ message: 'No token provided' });
     }
 
     res.clearCookie('token');
 
     await blacklistTokenModel.create({ token });
-    
+
     res.status(200).json({ message: 'Captain logged out successfully' });
 };

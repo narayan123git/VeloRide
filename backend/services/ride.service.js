@@ -66,6 +66,7 @@ module.exports.createRide = async (user, pickup, destination, vehicleType) => {
     otp: otp1,
     fare: fareBreakdown[vehicleType].fare,
   });
+  newRide.distance = fareBreakdown[vehicleType].distanceKm;
   return await newRide.save();
 };
 

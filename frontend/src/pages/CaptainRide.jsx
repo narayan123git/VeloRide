@@ -43,7 +43,7 @@ const CaptainRide = () => {
                     <h2 className='bg-[#eee] h-10 w-10 flex items-center justify-center rounded-full'>
                         <i className="ri-map-pin-user-line"></i>
                     </h2>
-                    <h4 className='text-xl font-semibold'>4 mins away</h4>
+                    <h4 className='text-xl font-semibold'>Start your journey</h4>
                 </div>
                 <button
                     onClick={() => {

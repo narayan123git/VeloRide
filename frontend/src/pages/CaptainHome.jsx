@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import io from 'socket.io-client'
 import CaptainDetails from '../components/CaptainDetails'
 import RidePopUp from '../components/RidePopUp'
@@ -18,6 +18,7 @@ const CaptainHome = () => {
   const [ConRidePopupPanel, setConRidePopupPanel] = useState(false)
   const conridepopRef = useRef(null)
   const ridepopRef = useRef(null)
+  const navigate = useNavigate();
   const [pendingRide, setPendingRide] = useState(null)
   const [rideQueue, setRideQueue] = useState([]);
   const [activeRide, setActiveRide] = useState(null);
@@ -126,9 +127,17 @@ const CaptainHome = () => {
       <div className='h-screen'>
         <div className='fixed p-6 top-0 w-screen flex items-center justify-between'>
           <img className='w-16' src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="VeloRide Logo" />
-          <Link to='/captain-home' className='fixed top-2 right-2 h-10 w-10 bg-white flex items-center justify-center rounded-full'>
-            <i className="text-lg font-medium ri-logout-box-r-line"></i>
-          </Link>
+          <div className='flex gap-2'>
+            <button
+              onClick={() => navigate('/captain/logout')}
+              className='h-10 w-28 bg-red-500 text-white flex items-center justify-center rounded-full font-semibold'
+            >
+              Logout
+            </button>
+            <Link to='/captain-home' className='h-10 w-10 bg-white flex items-center justify-center rounded-full'>
+              <i className="text-lg font-medium ri-logout-box-r-line"></i>
+            </Link>
+          </div>
         </div>
         <div className='h-[70%]'>
           <img

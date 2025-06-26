@@ -97,3 +97,25 @@ module.exports.verifyOtp = async (req, res) => {
         res.status(400).json({ message: 'Invalid OTP.' });
     }
 };
+
+module.exports.completeRide = async(req, res) => {
+  const { rideId } = req.body;
+  const ride = await rideModel.findById(rideId);
+  if (!ride) return res.status(404).json({ message: 'Ride not found' });
+
+  // Mark ride as completed
+  ride.status = 'completed';
+  await ride.save();
+
+  // Update captain stats
+  const captain = await captainModel.findById(ride.captain);
+  if (captain) {
+    captain.vehicle.earnings += ride.fare || 0;
+    captain.vehicle.distance += ride.distance || 0;
+    captain.vehicle.totalRides += 1;
+    // Optionally update hoursOnline here if you track session time
+    await captain.save();
+  }
+
+  res.json({ message: 'Ride completed and captain stats updated.' });
+};

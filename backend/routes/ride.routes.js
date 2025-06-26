@@ -46,4 +46,10 @@ router.get('/:rideId', async (req, res) => {
   }
 });
 
+router.post('/complete',
+  authMiddleware.authCaptain,
+  body('rideId').isString().isLength({ min: 3 }).withMessage('Invalid ride ID'),
+  rideController.completeRide
+);
+
 module.exports = router;
