@@ -47,6 +47,7 @@ const App = () => {
           </CaptainProtectedWrapper>
         }></Route>
       </Routes>
+      <div><Analytics /></div>
     </div>
   )
 }
