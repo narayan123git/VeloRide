@@ -1,4 +1,4 @@
-# 🚖 VeloRide – The Ultimate Uber Clone
+# 🚖 VeloRide – The Ultimate Ride handling project inspired by Uber
 
 **VeloRide** is a full-stack, real-time ride-hailing web application inspired by Uber, built with the modern **MERN Stack** and powered by **Socket.IO** for instant communication.  
 It delivers a seamless experience for both riders and captains, featuring live geolocation, dynamic fare calculation, real-time ride requests, and OTP-based ride verification.
