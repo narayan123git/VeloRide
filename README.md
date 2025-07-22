@@ -7,7 +7,7 @@ It delivers a seamless experience for both riders and captains, featuring live g
 
 ## 🌐 Live Demo
 
-- **Link:** [Vercel Deployment](https://veloride.vercel.app)
+- **Link:** [Vercel Deployment](https://veloride-git-main-narayan-pauls-projects.vercel.app/home)
 
 ---
 
