@@ -12,7 +12,7 @@ router.post('/register', [
     body('vehicle.color').isLength({ min: 3 }).withMessage('Vehicle color must be at least 3 characters long'),
     body('vehicle.plate').matches(/^[A-Z0-9]{1,10}$/).withMessage('Vehicle plate must be alphanumeric and up to 10 characters long'),
     body('vehicle.capacity').isInt({ min: 1 }).withMessage('Vehicle capacity must be at least 1'),
-    body('vehicle.vehicleType').isIn(['car', 'bike', 'truck', 'van']).withMessage('Vehicle type must be one of: car, bike, truck'),
+    body('vehicle.vehicleType').isIn(['car', 'bike', 'taxi', 'auto']).withMessage('Vehicle type must be one of: car, bike, truck'),
 ], captainController.registerCaptain);
 
 router.post('/login', [
